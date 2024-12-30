@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yurrr</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #2b2b2b, #1a1a1a);
+            color: #f3f3f3;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 50px 20px;
+            background: rgba(0, 0, 0, 0.6); 
+            border-bottom: 5px solid #7c5e27; 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            margin: 0;
+            color: #7c5e27;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+            cursor: pointer;
+        }
+
+        .section-title {
+            font-size: 2.5em;
+            color: #d4af37;
+            margin: 20px 0;
+            text-align: center;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+            position: relative;
+            padding: 10px;
+            background: linear-gradient(45deg, #7c5e27, #4c4c4c);
+            border-radius: 8px;
+        }
+
+        .section-divider {
+            width: 50%;
+            height: 3px;
+            background: #7c5e27;
+            margin: 20px auto;
+        }
+
+        .gallery {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .image-card {
+            width: 90%;
+            max-width: 1000px;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+        }
+
+        .image-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .image-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+        }
+
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .fullscreen img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+
+        .fullscreen-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        .confetti img {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            animation: fall 4s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) rotate(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header" onclick="triggerConfetti()">
+        <h1>Halo's Server oder so</h1>
+    </div>
+
+    <div class="gallery">
+        <!-- Erste Reihe von Bildern -->
+        <div class="section-title">Snapshot 1 - 30.12.2024</div>
+        <div class="section-divider"></div>
+        <div class="image-card">
+            <img src="Siedlung_Front.png" alt="Siedlung Front">
+        </div>
+        <div class="image-card">
+            <img src="Siedlung_Rück.png" alt="Siedlung Rück">
+        </div>
+        <div class="image-card">
+            <img src="Halo_Statue.png" alt="Halo Statue">
+        </div>
+
+        <!-- Neue Reihe von Bildern (Zukunft) -->
+        <div class="section-title">Snapshot 2 - TBD</div>
+        <div class="section-divider"></div>
+    </div>
+
+    <div class="confetti" id="confetti"></div>
+
+    <script>
+        document.querySelectorAll('.image-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const fullscreenDiv = document.createElement('div');
+                fullscreenDiv.classList.add('fullscreen');
+
+                const img = document.createElement('img');
+                img.src = card.querySelector('img').src;
+                fullscreenDiv.appendChild(img);
+
+                const closeBtn = document.createElement('div');
+                closeBtn.textContent = '\u2715';
+                closeBtn.classList.add('fullscreen-close');
+                closeBtn.addEventListener('click', () => {
+                    fullscreenDiv.remove();
+                });
+                fullscreenDiv.appendChild(closeBtn);
+
+                document.body.appendChild(fullscreenDiv);
+            });
+        });
+
+        function triggerConfetti() {
+            const confettiContainer = document.getElementById('confetti');
+            const blockTextures = [
+                'https://static.wikia.nocookie.net/minecraft_gamepedia/images/2/2d/Mud_Bricks_%28texture%29_JE1_BE1.png/revision/latest?cb=20220401100759',
+                'https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/dc/Stone_%28texture%29_JE5_BE3.png/revision/latest?cb=20201001141805',
+                'https://static.wikia.nocookie.net/minecraft_gamepedia/images/e/ea/Gravel_%28texture%29_JE5_BE4.png/revision/latest?cb=20201006055426',
+                'https://static.wikia.nocookie.net/minecraft_gamepedia/images/5/5a/Iron_Ore_%28texture%29_JE6_BE4.png/revision/latest?cb=20210312150124',
+                'https://static.wikia.nocookie.net/minecraft_gamepedia/images/e/e5/Deepslate_Diamond_Ore_%28texture%29_JE2_BE1.png/revision/latest?cb=20210312150355',
+                'https://static.wikia.nocookie.net/minecraft_gamepedia/images/7/7e/Oak_Log_%28top_texture%29_JE5_BE2.png/revision/latest?cb=20201001140152',
+                'https://static.wikia.nocookie.net/minecraft_gamepedia/images/2/2d/Mud_Bricks_%28texture%29_JE1_BE1.png/revision/latest?cb=20220401100759'
+            ];
+
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('img');
+                confetti.src = blockTextures[Math.floor(Math.random() * blockTextures.length)];
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.animationDelay = `${Math.random() * 2}s`;
+                confettiContainer.appendChild(confetti);
+
+                setTimeout(() => {
+                    confetti.remove();
+                }, 4000);
+            }
+        }
+    </script>
+</body>
+</html>
