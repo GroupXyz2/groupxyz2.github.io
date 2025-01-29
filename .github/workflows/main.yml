@@ -31,7 +31,7 @@ jobs:
 
       - name: Modify website URL to pickaxegaming.de
         run: |
-          sed -i 's|example\.com|pickaxegaming.de|g' YoutubeDownloader/index.html    
+          sed -i 's|example\.com|pickaxegaming.de|g' downloader/index.html    
 
       - name: Commit and Push Changes
         run: |
