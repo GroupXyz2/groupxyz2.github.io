@@ -29,6 +29,10 @@ jobs:
           mkdir -p downloader
           cp temp_repo/Youtube\ downloader\ website/index.html downloader/
 
+      - name: Modify website URL to pickaxegaming.de
+        run: |
+          sed -i 's|example\.com|pickaxegaming.de|g' YoutubeDownloader/index.html    
+
       - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions[bot]"
