@@ -7,6 +7,8 @@ on:
   schedule:
     - cron: "0 * * * *"  # Läuft jede Stunde
   workflow_dispatch: # Manuelles Starten möglich
+  repository_dispatch:
+    types: [application-update]
 
 jobs:
   sync:
