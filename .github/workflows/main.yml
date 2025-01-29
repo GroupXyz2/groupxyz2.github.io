@@ -1,0 +1,39 @@
+name: Sync Applications Repo
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 * * * *"  # Läuft jede Stunde
+  workflow_dispatch: # Manuelles Starten möglich
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout `groupxyz2.github.io`
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Clone `applications` Repository
+        run: |
+          git clone --depth=1 https://github.com/GroupXyz2/applications.git temp_repo
+
+      - name: Copy new files
+        run: |
+          rm -rf YoutubeDownloader
+          mkdir -p YoutubeDownloader
+          cp -r temp_repo/Youtube\ downloader\ website/* YoutubeDownloader/
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Auto-sync YoutubeDownloader from applications repo" || exit 0
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
