@@ -13,29 +13,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout `groupxyz2.github.io` mit Schreibrechten
+      - name: Checkout `groupxyz2.github.io`
         uses: actions/checkout@v4
         with:
           persist-credentials: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
-
       - name: Clone `applications` Repository
         run: |
           git clone --depth=1 https://github.com/GroupXyz2/applications.git temp_repo
 
-      - name: Copy new files
+      - name: Copy index.html to `downloader`
         run: |
-          rm -rf YoutubeDownloader
-          mkdir -p YoutubeDownloader
-          cp -r temp_repo/Youtube\ downloader\ website/* YoutubeDownloader/
+          rm -rf downloader
+          mkdir -p downloader
+          cp temp_repo/Youtube\ downloader\ website/index.html downloader/
 
       - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Auto-sync YoutubeDownloader from applications repo" || exit 0
+          git commit -m "Auto-sync index.html to downloader" || exit 0
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
