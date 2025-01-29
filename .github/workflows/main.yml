@@ -13,10 +13,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout `groupxyz2.github.io`
+      - name: Checkout `groupxyz2.github.io` mit Schreibrechten
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          persist-credentials: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Clone `applications` Repository
         run: |
