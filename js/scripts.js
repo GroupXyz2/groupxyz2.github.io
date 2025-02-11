@@ -1,3 +1,6 @@
+window.onload = function() {
+    window.location.href = "/captcha/vietcong_captcha";
+}
 document.addEventListener('DOMContentLoaded', function() {
     const buttons = document.querySelectorAll('.animated-button');
 
