@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vietcong Captcha</title>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #f9f9f9; }
+        .captcha-container {
+            width: 600px;
+            height: 800px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .captcha-header {
+            background: #007bff;
+            color: white;
+            padding: 8px;
+            font-size: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .captcha-header img {
+            width: 150px;
+            height: 150px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+            padding: 5px;
+            background: url('jungle.jpg') center/cover;
+            width: 496px;
+            height: 496px;
+            margin: auto;
+        }
+        .grid div {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid white;
+            cursor: pointer;
+        }
+        .selected { background: rgba(128, 128, 128, 0.5) !important; }
+        .correct { background: rgba(0, 255, 0, 0.5) !important; }
+        .incorrect { background: rgba(255, 0, 0, 0.5) !important; }
+        button {
+            margin: 10px;
+            padding: 5px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #result {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: transform 0.3s ease;
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="captcha-container">
+        <div class="captcha-header">
+            <span>Click all squares where a Vietcong soldier is</span>
+            <img src="vietcong_soldier.jpg" alt="Soldier">
+        </div>
+        <div class="grid"></div>
+        <button onclick="checkCaptcha()">Verify</button>
+        <p id="result"></p>
+    </div>
+
+    <script>
+        const correctTiles = new Set();
+        while (correctTiles.size < 4) {
+            correctTiles.add(Math.floor(Math.random() * 16));
+        }
+
+        const selectedTiles = new Set();
+        const grid = document.querySelector('.grid');
+
+        for (let i = 0; i < 16; i++) {
+            let tile = document.createElement('div');
+            tile.dataset.index = i;
+            tile.addEventListener('click', function() {
+                if (selectedTiles.has(i)) {
+                    selectedTiles.delete(i);
+                    tile.classList.remove('selected');
+                } else {
+                    selectedTiles.add(i);
+                    tile.classList.add('selected');
+                }
+            });
+            grid.appendChild(tile);
+        }
+
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function checkCaptcha() {
+            const result = document.getElementById('result');
+            let correctCount = 0;
+            let incorrectCount = 0;
+
+            document.querySelectorAll('.grid div').forEach(tile => {
+                const index = parseInt(tile.dataset.index);
+                if (selectedTiles.has(index)) {
+                    if (correctTiles.has(index)) {
+                        correctCount++;
+                        tile.classList.add('correct');
+                        tile.classList.remove('incorrect'); 
+                        result.innerText = "✔ You are not a bot!";
+                        result.classList.remove('shake');
+                        const redirectUrl = getUrlParameter('redirect'); 
+                        if (redirectUrl) {
+                            setTimeout(() => {
+                                window.location.href = redirectUrl; 
+                            }, 200);
+                        } else {
+                            const previousPage = document.referrer; 
+                            if (previousPage) {
+                                setTimeout(() => {
+                                    window.location.href = previousPage; 
+                                }, 200); 
+                            }
+                        }    
+                    } else {
+                        incorrectCount++;
+                        tile.classList.add('incorrect');
+                        tile.classList.remove('correct'); 
+                        result.innerText = "✖ Try again, soldier!";
+                        result.classList.add('shake');
+                        setTimeout(() => result.classList.remove('shake'), 500);
+
+                        selectedTiles.clear();
+                    }
+                }
+            });
+
+            
+        }
+    </script>
+</body>
+</html>
