@@ -1,5 +1,9 @@
 window.onload = function() {
-    window.location.href = "/captcha/vietcong_captcha";
+    let captchaPassed = document.cookie.split(';').some((item) => item.trim().startsWith('captcha_passed='));
+    
+    if (!captchaPassed) {
+        window.location.href = "/captcha/vietcong_captcha";
+    }
 }
 document.addEventListener('DOMContentLoaded', function() {
     const buttons = document.querySelectorAll('.animated-button');
