@@ -115,6 +115,10 @@
             return urlParams.get(name);
         }
 
+        function setCaptchaPassed() {
+            document.cookie = "captcha_passed=true; path=/";
+        }
+
         function checkCaptcha() {
             const result = document.getElementById('result');
             let correctCount = 0;
@@ -129,6 +133,7 @@
                         tile.classList.remove('incorrect'); 
                         result.innerText = "✔ You are not a bot!";
                         result.classList.remove('shake');
+                        setCaptchaPassed();
                         const redirectUrl = getUrlParameter('redirect'); 
                         if (redirectUrl) {
                             setTimeout(() => {
