@@ -18,6 +18,7 @@
     };
     
     var sessionId = 'session_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+    var visitorId = getOrCreateVisitorId();
     var pageLoadTime = new Date();
     var maxScrollDepth = 0;
     
@@ -31,6 +32,19 @@
     } catch (e) {
       debug('Error saving entry-time:', e);
     }
+
+    function getOrCreateVisitorId() {
+      try {
+        let id = localStorage.getItem('analytics_visitor_id');
+        if (!id) {
+          id = 'visitor_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+          localStorage.setItem('analytics_visitor_id', id);
+        }
+        return id;
+      } catch (e) {
+        return 'visitor_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+      }
+    }
     
     function debug(message, data) {
       if (config.debugMode && window.console) {
@@ -43,6 +57,7 @@
       
       var analyticsData = {
         sessionId: sessionId,
+        visitorId: visitorId,
         timestamp: new Date().toISOString(),
         eventType: eventType,
         page: window.location.href,
