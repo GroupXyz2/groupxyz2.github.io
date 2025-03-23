@@ -184,14 +184,14 @@
             const url = document.getElementById("url").value;
             const messageDiv = document.getElementById("message");
             const format = document.getElementById("format").value;
-            const server_url = "node2.raspberrypi.lol";
+            const server_url = "pickaxegaming.de";
             const isSpotify = /(https?:\/\/)?(open\.spotify\.com|spotify:)/.test(url);
             const downloadType = isSpotify ? "Audio" : format === "mp3" ? "Audio" : "Video";
 
             messageDiv.innerHTML = `<div class="spinner"></div> ${downloadType} is downloading...`;
 
             try {
-                const response = await fetch(`https://${server_url}:27015/download/`, {
+                const response = await fetch(`https://${server_url}:8081/download/`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
