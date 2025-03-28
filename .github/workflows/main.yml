@@ -33,11 +33,11 @@ jobs:
 
       - name: Modify website URL to pickaxegaming.de
         run: |
-          sed -i 's|example\.com|node2.raspberrypi.lol|g' downloader/index.html
+          sed -i 's|example\.com|downloader.groupxyz.me|g' downloader/index.html
 
-      - name: Change port
-        run: |
-          sed -i 's|:8081|:27015|g' downloader/index.html 
+      #- name: Change port
+      #  run: |
+      #    sed -i 's|:8081|:27015|g' downloader/index.html 
 
       - name: Commit and Push Changes
         run: |
