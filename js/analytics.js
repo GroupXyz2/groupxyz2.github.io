@@ -6,8 +6,8 @@
 
 (function(window, document) {
     var config = {
-      endpoint: 'https://pickaxegaming.de:3223/analytics',
-      durationEndpoint: 'https://pickaxegaming.de:3223/analytics/duration',
+      endpoint: 'https://downloader.groupxyz.me:3223/analytics',
+      durationEndpoint: 'https://downloader.groupxyz.me:3223/analytics/duration',
       trackPageviews: true,
       trackClicks: true,
       trackForms: true,
