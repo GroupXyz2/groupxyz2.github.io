@@ -541,8 +541,7 @@
                         try {
                             const data = await response.json();
                             if (data && data.error) errorMsg = data.error;
-                        } catch (e) {
-                        }
+                        } catch (e) {}
                         throw new Error(errorMsg);
                     }
 
@@ -551,8 +550,23 @@
                     if (disposition && disposition.includes('filename=')) {
                         filename = disposition.split('filename=')[1].replace(/"/g, '');
                     }
-
+                    const contentType = response.headers.get('Content-Type');
                     const blob = await response.blob();
+
+                    // Fehlerbehandlung: error.log oder text/plain anzeigen
+                    if ((filename.endsWith('.log') || (contentType && contentType.startsWith('text/plain')))) {
+                        const text = await blob.text();
+                        this.showToast('Download error: ' + text, 'error');
+                        progressLabel.textContent = '❌ Download failed';
+                        this.isDownloading = false;
+                        downloadBtn.textContent = '🚀 Download now!';
+                        downloadBtn.disabled = false;
+                        setTimeout(() => {
+                            progressContainer.classList.remove('show');
+                        }, 3000);
+                        return;
+                    }
+
                     progressFill.style.width = '100%';
                     progressLabel.textContent = '✅ Download complete!';
                     this.showToast('Download finished!', 'success');
