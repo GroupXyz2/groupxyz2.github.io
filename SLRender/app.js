@@ -1,14 +1,55 @@
 /**
  * SLRender App - Main application logic
- * Handles loading content and rendering with the parser
+ * Handles loading content, editing, and rendering with the parser
  */
 
 class SLRenderApp {
     constructor() {
         this.parser = new SLParser();
+        this.storage = new StorageManager();
         this.contentElement = document.getElementById('content');
         this.loadingElement = document.getElementById('loading');
-        this.animationDelay = 100; // Delay between line animations
+        this.editorWrapper = document.getElementById('editorWrapper');
+        this.contentEditor = document.getElementById('contentEditor');
+        this.livePreview = document.getElementById('livePreview');
+        this.fileInput = document.getElementById('fileInput');
+        
+        this.isEditorMode = false;
+        this.autoSaveTimer = null;
+        this.settings = this.storage.loadSettings();
+        
+        this.initializeEventListeners();
+        this.animationDelay = 100;
+    }
+
+    /**
+     * Initialize event listeners for UI controls
+     */
+    initializeEventListeners() {
+        // Control buttons
+        document.getElementById('toggleEditor').addEventListener('click', () => this.toggleEditor());
+        document.getElementById('saveContent').addEventListener('click', () => this.saveContent());
+        document.getElementById('exportContent').addEventListener('click', () => this.exportContent());
+        document.getElementById('importContent').addEventListener('click', () => this.importContent());
+        document.getElementById('resetContent').addEventListener('click', () => this.resetContent());
+        
+        // Editor buttons
+        document.getElementById('previewContent').addEventListener('click', () => this.updatePreview());
+        document.getElementById('insertTemplate').addEventListener('click', () => this.insertTemplate());
+        
+        // Editor events
+        this.contentEditor.addEventListener('input', () => this.onEditorInput());
+        this.contentEditor.addEventListener('keydown', (e) => this.onEditorKeydown(e));
+        
+        // File input
+        this.fileInput.addEventListener('change', (e) => this.onFileSelected(e));
+        
+        // Storage events
+        window.addEventListener('slrender:contentSaved', (e) => this.onContentSaved(e));
+        window.addEventListener('slrender:contentImported', (e) => this.onContentImported(e));
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
     }
 
     /**
@@ -23,38 +64,24 @@ class SLRenderApp {
     }
 
     /**
-     * Load content from content.txt file
+     * Load content - first from localStorage, then fallback to embedded
      */
     async loadContent() {
         try {
-            // For GitHub Pages, we'll embed the content directly
-            // This is because fetch() might not work with local files
-            const response = await this.fetchContent();
+            // Try to load from localStorage first
+            const storedContent = this.storage.loadContent();
             
-            if (response) {
-                await this.renderContent(response);
+            if (storedContent) {
+                await this.renderContent(storedContent);
+                this.contentEditor.value = storedContent;
+                this.showMessage('Content aus LocalStorage geladen', 'success');
             } else {
-                // Fallback: Use embedded content
+                // Fallback to embedded content
                 await this.loadEmbeddedContent();
             }
         } catch (error) {
-            console.warn('Failed to fetch content.txt, using embedded content:', error);
+            console.warn('Failed to load stored content, using embedded content:', error);
             await this.loadEmbeddedContent();
-        }
-    }
-
-    /**
-     * Try to fetch content.txt
-     */
-    async fetchContent() {
-        try {
-            const response = await fetch('./content.txt');
-            if (response.ok) {
-                return await response.text();
-            }
-            return null;
-        } catch (error) {
-            return null;
         }
     }
 
@@ -62,8 +89,19 @@ class SLRenderApp {
      * Load embedded content as fallback
      */
     async loadEmbeddedContent() {
-        // Embedded content from the original file
-        const embeddedContent = `<align="center"><size=36><color=#FF66CC>L</color><color=#E356D6>o</color><color=#C646E0>t</color><color=#AA36EA>u</color><color=#8E26F4>s</color><color=#7116FF>N</color><color=#5A11CC>e</color><color=#440C99>t</color><color=#2D0866>w</color><color=#170433>o</color><color=#0A0219>r</color><color=#000000>k</color></size></align>
+        const embeddedContent = this.getEmbeddedContent();
+        await this.renderContent(embeddedContent);
+        this.contentEditor.value = embeddedContent;
+        
+        // Auto-save embedded content for future use
+        this.storage.saveContent(embeddedContent);
+    }
+
+    /**
+     * Get embedded content (same as before)
+     */
+    getEmbeddedContent() {
+        return `<align="center"><size=36><color=#FF66CC>L</color><color=#E356D6>o</color><color=#C646E0>t</color><color=#AA36EA>u</color><color=#8E26F4>s</color><color=#7116FF>N</color><color=#5A11CC>e</color><color=#440C99>t</color><color=#2D0866>w</color><color=#170433>o</color><color=#0A0219>r</color><color=#000000>k</color></size></align>
  
 <align="center"><size=18><color=#4866FD>Kontakt</color></size></align>
 <align="center"><size=16><color=#FFFFFF>Bei Fragen, öffne ein Ticket auf unserem Discord</color></size></align>
@@ -124,8 +162,272 @@ class SLRenderApp {
 <align="center"><color=#FE2E2E>Beschwerden gegen ein Teammitglied bitte via Ticket auf Discord.</color></align>
 <align="center"><color=#FE2E2E>Unwissenheit schützt nicht vor Strafe!!</color></align>
 </size>`;
+    }
 
-        await this.renderContent(embeddedContent);
+    /**
+     * Toggle editor mode
+     */
+    toggleEditor() {
+        this.isEditorMode = !this.isEditorMode;
+        const toggleBtn = document.getElementById('toggleEditor');
+        const saveBtn = document.getElementById('saveContent');
+        
+        if (this.isEditorMode) {
+            this.editorWrapper.style.display = 'block';
+            toggleBtn.classList.add('active');
+            toggleBtn.innerHTML = '<span class="btn-icon">👁️</span><span class="btn-text">Vorschau</span>';
+            saveBtn.style.display = 'flex';
+            
+            // Update live preview
+            this.updatePreview();
+        } else {
+            this.editorWrapper.style.display = 'none';
+            toggleBtn.classList.remove('active');
+            toggleBtn.innerHTML = '<span class="btn-icon">✏️</span><span class="btn-text">Editor</span>';
+            saveBtn.style.display = 'none';
+            
+            // Update main content
+            this.renderContent(this.contentEditor.value);
+        }
+    }
+
+    /**
+     * Save content to localStorage
+     */
+    saveContent() {
+        const content = this.contentEditor.value;
+        const success = this.storage.saveContent(content);
+        
+        if (success) {
+            this.showMessage('Content erfolgreich gespeichert!', 'success');
+            this.renderContent(content);
+        } else {
+            this.showMessage('Fehler beim Speichern!', 'error');
+        }
+    }
+
+    /**
+     * Export content as file
+     */
+    exportContent() {
+        const content = this.contentEditor.value || this.storage.loadContent() || this.getEmbeddedContent();
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+        const filename = `content_${timestamp}.txt`;
+        
+        const success = this.storage.exportContent(content, filename);
+        if (success) {
+            this.showMessage(`Content als ${filename} exportiert!`, 'success');
+        } else {
+            this.showMessage('Fehler beim Export!', 'error');
+        }
+    }
+
+    /**
+     * Import content from file
+     */
+    importContent() {
+        this.fileInput.click();
+    }
+
+    /**
+     * Reset content to default template
+     */
+    resetContent() {
+        if (confirm('Möchtest du den Content wirklich zurücksetzen? Alle Änderungen gehen verloren!')) {
+            const template = this.storage.getDefaultTemplate();
+            this.contentEditor.value = template;
+            this.updatePreview();
+            this.showMessage('Content zurückgesetzt!', 'info');
+        }
+    }
+
+    /**
+     * Insert template at cursor position
+     */
+    insertTemplate() {
+        const template = this.storage.getDefaultTemplate();
+        const editor = this.contentEditor;
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        
+        const before = editor.value.substring(0, start);
+        const after = editor.value.substring(end);
+        
+        editor.value = before + template + after;
+        editor.focus();
+        editor.setSelectionRange(start + template.length, start + template.length);
+        
+        this.updatePreview();
+    }
+
+    /**
+     * Update live preview
+     */
+    updatePreview() {
+        if (this.settings.livePreview && this.isEditorMode) {
+            const content = this.contentEditor.value;
+            const parsedContent = this.parser.parse(content);
+            this.livePreview.innerHTML = parsedContent;
+            this.animateContent(this.livePreview);
+        }
+    }
+
+    /**
+     * Handle editor input (auto-save and live preview)
+     */
+    onEditorInput() {
+        // Live preview update
+        if (this.settings.livePreview) {
+            clearTimeout(this.previewTimer);
+            this.previewTimer = setTimeout(() => this.updatePreview(), 300);
+        }
+        
+        // Auto-save
+        if (this.settings.autoSave) {
+            clearTimeout(this.autoSaveTimer);
+            this.autoSaveTimer = setTimeout(() => {
+                this.storage.saveContent(this.contentEditor.value);
+            }, 2000);
+        }
+    }
+
+    /**
+     * Handle editor keyboard shortcuts
+     */
+    onEditorKeydown(e) {
+        // Tab indentation
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = e.target.selectionStart;
+            const end = e.target.selectionEnd;
+            const value = e.target.value;
+            
+            e.target.value = value.substring(0, start) + '   ' + value.substring(end);
+            e.target.setSelectionRange(start + 3, start + 3);
+        }
+        
+        // Ctrl+S for save
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            this.saveContent();
+        }
+    }
+
+    /**
+     * Handle file selection for import
+     */
+    async onFileSelected(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        try {
+            const content = await this.storage.importContent(file);
+            this.contentEditor.value = content;
+            this.updatePreview();
+            this.showMessage(`Datei ${file.name} erfolgreich importiert!`, 'success');
+        } catch (error) {
+            this.showMessage(`Import-Fehler: ${error.message}`, 'error');
+        } finally {
+            e.target.value = ''; // Reset file input
+        }
+    }
+
+    /**
+     * Handle keyboard shortcuts
+     */
+    handleKeyboardShortcuts(e) {
+        // Toggle editor with F2
+        if (e.key === 'F2') {
+            e.preventDefault();
+            this.toggleEditor();
+        }
+        
+        // Save with Ctrl+S (when not in editor)
+        if (e.ctrlKey && e.key === 's' && !this.isEditorMode) {
+            e.preventDefault();
+            this.saveContent();
+        }
+        
+        // Export with Ctrl+E
+        if (e.ctrlKey && e.key === 'e') {
+            e.preventDefault();
+            this.exportContent();
+        }
+    }
+
+    /**
+     * Handle content saved event
+     */
+    onContentSaved(e) {
+        console.log('Content saved:', e.detail);
+    }
+
+    /**
+     * Handle content imported event
+     */
+    onContentImported(e) {
+        console.log('Content imported:', e.detail);
+    }
+
+    /**
+     * Show message to user
+     */
+    showMessage(message, type = 'info') {
+        const messageEl = document.createElement('div');
+        messageEl.className = `message message-${type}`;
+        messageEl.innerHTML = `
+            <span class="message-icon">${this.getMessageIcon(type)}</span>
+            <span class="message-text">${message}</span>
+        `;
+        
+        // Style the message
+        Object.assign(messageEl.style, {
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            padding: '15px 20px',
+            borderRadius: '8px',
+            color: '#ffffff',
+            fontWeight: '500',
+            zIndex: '1000',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            backdropFilter: 'blur(10px)',
+            animation: 'slideInRight 0.3s ease'
+        });
+        
+        // Set background based on type
+        const backgrounds = {
+            success: 'rgba(40, 167, 69, 0.9)',
+            error: 'rgba(220, 53, 69, 0.9)',
+            warning: 'rgba(255, 193, 7, 0.9)',
+            info: 'rgba(23, 162, 184, 0.9)'
+        };
+        messageEl.style.background = backgrounds[type] || backgrounds.info;
+        
+        document.body.appendChild(messageEl);
+        
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            if (messageEl.parentNode) {
+                messageEl.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => messageEl.remove(), 300);
+            }
+        }, 3000);
+    }
+
+    /**
+     * Get icon for message type
+     */
+    getMessageIcon(type) {
+        const icons = {
+            success: '✅',
+            error: '❌',
+            warning: '⚠️',
+            info: 'ℹ️'
+        };
+        return icons[type] || icons.info;
     }
 
     /**
@@ -144,7 +446,7 @@ class SLRenderApp {
             this.contentElement.innerHTML = parsedContent;
             
             // Add scroll animations
-            this.animateContent();
+            this.animateContent(this.contentElement);
             
             // Make content visible
             this.contentElement.style.opacity = '1';
@@ -156,9 +458,10 @@ class SLRenderApp {
 
     /**
      * Add scroll-triggered animations to content
+     * @param {Element} container - Container element to animate
      */
-    animateContent() {
-        const lines = this.contentElement.querySelectorAll('.content-line');
+    animateContent(container = this.contentElement) {
+        const lines = container.querySelectorAll('.content-line');
         
         // Create intersection observer for scroll animations
         const observer = new IntersectionObserver((entries) => {

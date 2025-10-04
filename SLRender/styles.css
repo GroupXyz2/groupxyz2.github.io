@@ -91,6 +91,168 @@ header p {
     font-weight: 300;
 }
 
+/* Control Panel */
+.control-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 102, 204, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.control-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: linear-gradient(45deg, rgba(255, 102, 204, 0.2), rgba(113, 22, 255, 0.2));
+    border: 1px solid rgba(255, 102, 204, 0.4);
+    border-radius: 8px;
+    color: #ffffff;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.control-btn:hover {
+    background: linear-gradient(45deg, rgba(255, 102, 204, 0.4), rgba(113, 22, 255, 0.4));
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 102, 204, 0.3);
+}
+
+.control-btn.active {
+    background: linear-gradient(45deg, #FF66CC, #7116FF);
+    box-shadow: 0 0 20px rgba(255, 102, 204, 0.5);
+}
+
+.btn-icon {
+    font-size: 1.1rem;
+}
+
+.btn-text {
+    font-weight: 500;
+}
+
+/* Editor Wrapper */
+.editor-wrapper {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 15px;
+    border: 1px solid rgba(58, 162, 226, 0.3);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    margin-bottom: 20px;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.editor-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.editor-header h3 {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    color: #FF66CC;
+    margin-bottom: 10px;
+}
+
+.editor-header p {
+    color: #cccccc;
+    font-size: 0.9rem;
+}
+
+.editor-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    align-items: start;
+}
+
+.editor-section, .preview-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.editor-section label, .preview-section label {
+    font-weight: 600;
+    color: #5AA3E2;
+    font-size: 1rem;
+}
+
+/* Content Editor Textarea */
+.content-editor {
+    width: 100%;
+    min-height: 400px;
+    max-height: 600px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(58, 162, 226, 0.4);
+    border-radius: 8px;
+    color: #ffffff;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    resize: vertical;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+.content-editor:focus {
+    outline: none;
+    border-color: #FF66CC;
+    box-shadow: 0 0 15px rgba(255, 102, 204, 0.3);
+}
+
+.content-editor::placeholder {
+    color: #666666;
+}
+
+/* Editor Controls */
+.editor-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.editor-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 15px;
+    background: rgba(58, 162, 226, 0.2);
+    border: 1px solid rgba(58, 162, 226, 0.4);
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.editor-btn:hover {
+    background: rgba(58, 162, 226, 0.4);
+    transform: translateY(-1px);
+}
+
+/* Live Preview */
+.live-preview {
+    min-height: 400px;
+    max-height: 600px;
+    overflow-y: auto;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(58, 162, 226, 0.4);
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+}
+
 /* Main content area */
 .content-wrapper {
     background: rgba(0, 0, 0, 0.4);
@@ -254,6 +416,29 @@ footer {
         padding: 20px;
     }
     
+    .control-panel {
+        padding: 15px;
+    }
+    
+    .control-btn {
+        padding: 10px 15px;
+        font-size: 0.8rem;
+    }
+    
+    .editor-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .content-editor, .live-preview {
+        min-height: 300px;
+        max-height: 400px;
+    }
+    
+    .editor-controls {
+        justify-content: center;
+    }
+    
     .size-36 { font-size: 1.8rem; }
     .size-24 { font-size: 1.3rem; }
     .size-20 { font-size: 1.1rem; }
@@ -271,6 +456,29 @@ footer {
         padding: 15px;
     }
     
+    .editor-wrapper {
+        padding: 15px;
+    }
+    
+    .control-panel {
+        gap: 10px;
+    }
+    
+    .control-btn {
+        padding: 8px 12px;
+        font-size: 0.75rem;
+    }
+    
+    .btn-text {
+        display: none;
+    }
+    
+    .content-editor, .live-preview {
+        min-height: 250px;
+        max-height: 350px;
+        font-size: 0.8rem;
+    }
+    
     .rule-subsection {
         margin-left: 10px;
     }
@@ -285,6 +493,28 @@ footer {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100px);
     }
 }
 

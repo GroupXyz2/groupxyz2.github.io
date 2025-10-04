@@ -16,6 +16,59 @@
         </header>
         
         <main>
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <button id="toggleEditor" class="control-btn">
+                    <span class="btn-icon">✏️</span>
+                    <span class="btn-text">Editor</span>
+                </button>
+                <button id="saveContent" class="control-btn" style="display: none;">
+                    <span class="btn-icon">💾</span>
+                    <span class="btn-text">Speichern</span>
+                </button>
+                <button id="exportContent" class="control-btn">
+                    <span class="btn-icon">📥</span>
+                    <span class="btn-text">Export</span>
+                </button>
+                <button id="importContent" class="control-btn">
+                    <span class="btn-icon">📤</span>
+                    <span class="btn-text">Import</span>
+                </button>
+                <button id="resetContent" class="control-btn">
+                    <span class="btn-icon">🔄</span>
+                    <span class="btn-text">Reset</span>
+                </button>
+            </div>
+
+            <!-- Editor Mode -->
+            <div id="editorWrapper" class="editor-wrapper" style="display: none;">
+                <div class="editor-header">
+                    <h3>📝 Content Editor</h3>
+                    <p>Bearbeite den Content mit der speziellen Markup-Syntax</p>
+                </div>
+                <div class="editor-content">
+                    <div class="editor-section">
+                        <label for="contentEditor">Markup Code:</label>
+                        <textarea id="contentEditor" class="content-editor" placeholder="Füge hier deinen Content ein..."></textarea>
+                        <div class="editor-controls">
+                            <button id="previewContent" class="editor-btn">
+                                <span class="btn-icon">👁️</span>
+                                Vorschau aktualisieren
+                            </button>
+                            <button id="insertTemplate" class="editor-btn">
+                                <span class="btn-icon">📄</span>
+                                Template einfügen
+                            </button>
+                        </div>
+                    </div>
+                    <div class="preview-section">
+                        <label>Live Vorschau:</label>
+                        <div id="livePreview" class="live-preview"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
             <div class="content-wrapper">
                 <div id="loading" class="loading">
                     <div class="loader"></div>
@@ -23,6 +76,9 @@
                 </div>
                 <div id="content" class="content-area"></div>
             </div>
+
+            <!-- Hidden file input for import -->
+            <input type="file" id="fileInput" accept=".txt" style="display: none;">
         </main>
         
         <footer>
@@ -30,6 +86,7 @@
         </footer>
     </div>
     
+    <script src="storage.js"></script>
     <script src="parser.js"></script>
     <script src="app.js"></script>
 </body>
